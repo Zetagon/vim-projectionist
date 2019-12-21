@@ -1,3 +1,11 @@
+# What this fork brings to the table
+
+Enhance the normal navigation commands. Prefix them with an F to run them with FZF. 
+
+For the example below the commands `:FEcommand` and `FEhook`. All the other
+navigation commands such as `:Vhook` are also prfixed.
+
+
 # projectionist.vim
 
 Projectionist provides granular project configuration using "projections".

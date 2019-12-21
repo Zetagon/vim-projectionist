@@ -544,11 +544,29 @@ function! projectionist#append(root, ...) abort
   endif
 endfunction
 
+function! projectionist#fzf_get_projection(patterns)
+
+	execute 'Pcd'
+	redir => files
+	for [directory, pattern] in a:patterns
+		silent execute '!find . -path "*'. l:pattern . '"'
+	endfor
+	redir END
+	return split(files, "\n")[2:]
+endfunction
+
 function! projectionist#define_navigation_command(command, patterns) abort
   for [prefix, excmd] in items(s:prefixes)
     execute 'command! -buffer -bar -bang -nargs=* -complete=customlist,s:projection_complete'
           \ prefix . substitute(a:command, '\A', '', 'g')
           \ ':execute s:open_projection("<mods>", "'.excmd.'<bang>",'.string(a:patterns).',<f-args>)'
+	execute 'command!'
+          \ 'F'.prefix . substitute(a:command, '\A', '', 'g')
+    	  \ 'call fzf#run(fzf#wrap({'
+    	  \ "'source':  projectionist#fzf_get_projection(".string(a:patterns)."),"
+  		  \ "'sink*': { files -> execute('" .excmd. " '.join(map(".."files, {_, file -> split(file)[0]}))) },"
+  		  \ "'options': '--multi --reverse --bind ctrl-a:select-all+accept'"
+		  \ '}))'
   endfor
 endfunction
 
